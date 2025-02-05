@@ -27,3 +27,14 @@ export function bookDeleteById(deleteByIdForm) {
         url: '/book/deleteById/' + deleteByIdForm.id, method: 'DELETE'
     })
 }
+
+export function bookQueryList(queryListForm) {
+    return request({
+        url: '/book/queryList', method: 'GET', params: {
+            page: queryListForm.page,
+            pageSize: queryListForm.pageSize,
+            categoryId: queryListForm.categoryId,
+            name: queryListForm.name
+        }
+    })
+}

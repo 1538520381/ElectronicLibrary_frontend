@@ -3,8 +3,10 @@ import VueRouter from "vue-router";
 
 Vue.use(VueRouter)
 
-export const constantRoutes = [{path: '/', redirect: '/bookManagement', hidden: true}, {
+export const constantRoutes = [{path: '/', redirect: '/bookLibrary', hidden: true}, {
     path: '/bookManagement', name: 'BookManagement', component: () => import('@/views/admin/bookManagement')
+}, {
+    path: '/bookLibrary', name: 'BookLibrary', component: () => import('@/views/user/bookLibrary')
 }]
 
 const createRouter = () => new VueRouter({

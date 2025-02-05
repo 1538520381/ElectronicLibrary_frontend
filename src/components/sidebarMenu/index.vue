@@ -29,6 +29,13 @@ export default {
           userType: 'admin',
           url: '/bookManagement'
         },
+
+        {
+          title: '书本列表',
+          index: '0',
+          userType: 'user',
+          url: '/bookLibrary'
+        }
       ]
     }
   },

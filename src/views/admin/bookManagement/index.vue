@@ -177,7 +177,10 @@ export default {
   components: {draggable, SidebarMenu, Header},
   data() {
     return {
-      queryPageForm: {},
+      queryPageForm: {
+        categoryId: null,
+        name: null
+      },
 
       bookList: [],
       categoryList: [],
@@ -206,6 +209,7 @@ export default {
     }
   },
   created() {
+    this.initQueryPageForm()
     this.initAddBookForm()
     this.initCategoryManagementForm()
 
@@ -218,6 +222,12 @@ export default {
     this.getCategoryList()
   },
   methods: {
+    initQueryPageForm() {
+      this.queryPageForm = {
+        categoryId: null,
+        name: null
+      }
+    },
     initAddBookForm() {
       this.addBookForm = {
         bookCategoryId: null,
@@ -547,6 +557,11 @@ export default {
   flex: 1;
 
   text-align: center;
+}
+
+#bookManagement .middle .main .tableContainer /deep/ .el-scrollbar__wrap {
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 #bookManagement .middle .main .tableContainer .table {
