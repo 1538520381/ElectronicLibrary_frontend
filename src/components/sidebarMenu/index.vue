@@ -27,14 +27,14 @@ export default {
           title: '书本管理',
           index: '0',
           userType: 'admin',
-          url: '/bookManagement'
+          url: '/admin/bookManagement'
         },
 
         {
           title: '书本列表',
           index: '0',
           userType: 'user',
-          url: '/bookLibrary'
+          url: '/user/bookLibrary'
         }
       ]
     }
