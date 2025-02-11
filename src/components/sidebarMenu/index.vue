@@ -28,6 +28,11 @@ export default {
           index: '0',
           userType: 'admin',
           url: '/admin/bookManagement'
+        }, {
+          title: '用户管理',
+          index: '1',
+          userType: 'admin',
+          url: '/admin/userManagement'
         },
 
         {

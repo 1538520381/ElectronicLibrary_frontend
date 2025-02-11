@@ -53,15 +53,15 @@
                 </div>
               </template>
             </el-table-column>
-            <el-table-column class="tableColumn" label="处理状态">
-              <template slot-scope="scope">
-                <div>
-                  {{
-                    scope.row.handlingFlag === 0 ? '处理完成' : (scope.row.handlingFlag === 1 ? '处理中' : '处理失败')
-                  }}
-                </div>
-              </template>
-            </el-table-column>
+            <!--            <el-table-column class="tableColumn" label="处理状态">-->
+            <!--              <template slot-scope="scope">-->
+            <!--                <div>-->
+            <!--                  {{-->
+            <!--                    scope.row.handlingFlag === 0 ? '处理完成' : (scope.row.handlingFlag === 1 ? '处理中' : '处理失败')-->
+            <!--                  }}-->
+            <!--                </div>-->
+            <!--              </template>-->
+            <!--            </el-table-column>-->
             <el-table-column class="tableColumn" prop="createTime" label="上传时间"></el-table-column>
             <el-table-column class="tableColumn" fixed="right" label="操作">
               <template slot-scope="scope">
@@ -171,12 +171,15 @@ import {documentUpload, documentUploadBook} from "@/apis/document";
 import {isEmpty} from "@/utils/common";
 import {categoryAdd, categoryDeleteById, categoryGetListSortBySort, categoryUpdateList} from "@/apis/category";
 import {bookAdd, bookDeleteById, bookQueryPage} from "@/apis/book";
+import {userGetUserByToken} from "@/apis/user";
 
 export default {
   name: "BookManagement",
   components: {draggable, SidebarMenu, Header},
   data() {
     return {
+      user: {},
+
       queryPageForm: {
         categoryId: null,
         name: null
@@ -208,7 +211,9 @@ export default {
       uploadBookCoverDocumentLoading: false,
     }
   },
-  created() {
+  async created() {
+    await this.getUserByToken()
+
     this.initQueryPageForm()
     this.initAddBookForm()
     this.initCategoryManagementForm()
@@ -222,6 +227,26 @@ export default {
     this.getCategoryList()
   },
   methods: {
+    getUserByToken() {
+      return userGetUserByToken().then((res) => {
+        if (res.data.code === 200) {
+          if (res.data.user.type !== 0) {
+            this.toAdminLogin()
+            this.$message.error("用户无权限")
+          } else {
+            this.user = res.data.user
+          }
+        } else {
+          this.toAdminLogin()
+          this.$message.error("用户未登录")
+        }
+      }).catch((err) => {
+        this.toAdminLogin()
+        console.log(err)
+        this.$message.error("服务器异常，请联系管理员")
+      })
+    },
+
     initQueryPageForm() {
       this.queryPageForm = {
         categoryId: null,
@@ -500,6 +525,10 @@ export default {
         }
       }
       return null;
+    },
+
+    toAdminLogin() {
+      this.$router.push("/admin/login")
     },
 
     isEmpty,
