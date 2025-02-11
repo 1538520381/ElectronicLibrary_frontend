@@ -1,6 +1,6 @@
 <template>
   <div id="header">
-    <div class="title">电子书库</div>
+    <div class="title">观书阁电子书库</div>
   </div>
 </template>
 

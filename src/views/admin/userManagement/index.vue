@@ -6,17 +6,19 @@
       <SidebarMenu :user-type="'admin'" :active="'1'"></SidebarMenu>
       <div class="main">
         <div class="searchContainer">
+          <el-input class="searchInput" v-model="queryPageForm.name" prefix-icon="el-icon-search"
+                    placeholder="姓名"></el-input>
           <el-input class="searchInput" v-model="queryPageForm.phone" prefix-icon="el-icon-search"
                     placeholder="手机"></el-input>
           <el-input class="searchInput" v-model="queryPageForm.company" prefix-icon="el-icon-search"
-                    placeholder="公司"></el-input>
+                    placeholder="单位"></el-input>
           <el-select class="searchInput" v-model="queryPageForm.status" placeholder="状态" clearable>
             <el-option v-for="(item, index) in statusOptions" :label="item.name" :value="item.value"/>
           </el-select>
         </div>
         <div class="controlContainer">
           <el-button class="controlButton" type="primary"
-                     @click="queryUserPage({page: page,pageSize: pageSize,phone: queryPageForm.phone,company: queryPageForm.company,status: queryPageForm.status})">
+                     @click="queryUserPage({page: page,pageSize: pageSize,name:queryPageForm.name,phone: queryPageForm.phone,company: queryPageForm.company,status: queryPageForm.status})">
             搜索
           </el-button>
           <el-button class="controlButton" type="primary" @click="openAddUserDialog">新增</el-button>
@@ -24,8 +26,9 @@
         <el-scrollbar class="tableContainer">
           <el-table class="table" ref="table" :data="userList" empty-text="暂无用户">
             <el-table-column type="selection" width="55"></el-table-column>
+            <el-table-column class="tableColumn" prop="name" label="姓名"></el-table-column>
             <el-table-column class="tableColumn" prop="phone" label="手机"></el-table-column>
-            <el-table-column class="tableColumn" prop="company" label="公司"></el-table-column>
+            <el-table-column class="tableColumn" prop="company" label="单位"></el-table-column>
             <el-table-column class="tableColumn" label="状态">
               <template slot-scope="scope">
                 {{ scope.row.status ? '正常' : '禁用' }}
@@ -71,20 +74,24 @@
     <el-dialog class="addUserDialog" title="新增用户" :visible.sync="addUserDialogVis"
                :close-on-click-modal="false" width="450px">
       <el-form class="addUserForm">
+        <el-form-item class="addUserFormItem" label="姓名" :label-width="addUserDialogFormItemLabelWidth">
+          <el-input class="addUserFormInput" v-model="addUserForm.name" maxlength="150"
+                    placeholder="请输入姓名"></el-input>
+        </el-form-item>
         <el-form-item class="addUserFormItem" label="手机号" :label-width="addUserDialogFormItemLabelWidth">
           <el-input class="addUserFormInput" v-model="addUserForm.phone" maxlength="150"
-                    placeholder="请输入手机号"></el-input>
+                    placeholder="请输入手机"></el-input>
         </el-form-item>
-        <el-form-item class="addUserFormItem" label="公司" :label-width="addUserDialogFormItemLabelWidth">
+        <el-form-item class="addUserFormItem" label="单位" :label-width="addUserDialogFormItemLabelWidth">
           <el-input class="addUserFormInput" v-model="addUserForm.company" maxlength="150"
-                    placeholder="请输入公司"></el-input>
+                    placeholder="请输入单位"></el-input>
         </el-form-item>
       </el-form>
 
       <div class="addUserDialogFooter">
         <el-button @click="closeAddUserDialog">取消</el-button>
         <el-button type="primary"
-                   @click="addUser({phone: addUserForm.phone,company: addUserForm.company,type: 1})">
+                   @click="addUser({name: addUserForm.name,phone: addUserForm.phone,company: addUserForm.company,type: 1})">
           确定
         </el-button>
       </div>
@@ -114,6 +121,7 @@ export default {
       user: {},
 
       queryPageForm: {
+        name: null,
         phone: null,
         company: null,
         status: null
@@ -152,6 +160,7 @@ export default {
     this.queryUserPage({
       page: this.page,
       pageSize: this.pageSize,
+      name: this.queryPageForm.name,
       phone: this.queryPageForm.phone,
       company: this.queryPageForm.company,
       status: this.queryPageForm.status
@@ -180,6 +189,7 @@ export default {
 
     initQueryPageForm() {
       this.queryPageForm = {
+        name: null,
         phone: null,
         company: null,
         status: null
@@ -196,6 +206,7 @@ export default {
       userQueryPage({
         page: queryUserPageForm.page,
         pageSize: queryUserPageForm.pageSize,
+        name: isEmpty(queryUserPageForm.name) ? null : queryUserPageForm.name,
         phone: isEmpty(queryUserPageForm.phone) ? null : queryUserPageForm.phone,
         company: isEmpty(queryUserPageForm.company) ? null : queryUserPageForm.company,
         status: isEmpty(queryUserPageForm.status) ? null : queryUserPageForm.status,
@@ -209,6 +220,7 @@ export default {
             this.queryUserPage({
               page: res.data.userPage.pages,
               pageSize: queryUserPageForm.pageSize,
+              name: queryUserPageForm.name,
               phone: queryUserPageForm.phone,
               company: queryUserPageForm.company,
               status: queryUserPageForm.status,
@@ -224,8 +236,11 @@ export default {
       })
     },
     addUser(addUserForm) {
-      if (isEmpty(addUserForm.phone)) {
-        this.$message.error("手机号不能为空")
+      if (isEmpty(addUserForm.name)) {
+        this.$message.error("姓名不能为空")
+        return
+      } else if (isEmpty(addUserForm.phone)) {
+        this.$message.error("手机不能为空")
         return
       } else if (addUserForm.phone.length !== 11) {
         this.$message.error("请输入11位手机号")
@@ -233,6 +248,7 @@ export default {
       }
 
       userAdd({
+        name: isEmpty(addUserForm.name) ? null : addUserForm.name,
         phone: isEmpty(addUserForm.phone) ? null : addUserForm.phone,
         company: isEmpty(addUserForm.company) ? null : addUserForm.company,
       }).then((res) => {
@@ -241,6 +257,7 @@ export default {
           this.queryUserPage({
             page: this.page,
             pageSize: this.pageSize,
+            name: this.queryPageForm.name,
             phone: this.queryPageForm.phone,
             company: this.queryPageForm.company,
             status: this.queryPageForm.status
@@ -264,6 +281,7 @@ export default {
           this.queryUserPage({
             page: this.page,
             pageSize: this.pageSize,
+            name: this.queryPageForm.name,
             phone: this.queryPageForm.phone,
             company: this.queryPageForm.company,
             status: this.queryPageForm.status
@@ -286,6 +304,7 @@ export default {
           this.queryUserPage({
             page: this.page,
             pageSize: this.pageSize,
+            name: this.queryPageForm.name,
             phone: this.queryPageForm.phone,
             company: this.queryPageForm.company,
             status: this.queryPageForm.status

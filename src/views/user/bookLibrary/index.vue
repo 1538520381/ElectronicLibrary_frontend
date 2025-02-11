@@ -44,12 +44,15 @@ import SidebarMenu from "@/components/sidebarMenu/index.vue";
 import {categoryGetListSortBySort} from "@/apis/category";
 import {bookQueryList} from "@/apis/book";
 import {isEmpty} from "@/utils/common";
+import {userGetUserByToken} from "@/apis/user";
 
 export default {
   name: 'BookLibrary',
   components: {SidebarMenu, Header},
   data() {
     return {
+      user: null,
+
       queryPageForm: {
         categoryId: null,
         name: null
@@ -59,7 +62,9 @@ export default {
       categoryList: [],
     }
   },
-  created() {
+  async created() {
+    await this.getUserByToken()
+
     this.initQueryPageForm()
 
     this.queryListBook({
@@ -69,7 +74,21 @@ export default {
     this.getCategoryList()
   },
   methods: {
-    isEmpty,
+    getUserByToken() {
+      return userGetUserByToken().then((res) => {
+        if (res.data.code === 200) {
+          this.user = res.data.user
+        } else {
+          this.toLogin()
+          this.$message.error("用户未登录")
+        }
+      }).catch((err) => {
+        this.toLogin()
+        console.log(err)
+        this.$message.error("服务器异常，请联系管理员")
+      })
+    },
+
     initQueryPageForm() {
       this.queryPageForm = {
         categoryId: null,
@@ -115,7 +134,13 @@ export default {
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
-    }
+    },
+
+    toLogin() {
+      this.$router.push("/login")
+    },
+
+    isEmpty,
   }
 }
 </script>

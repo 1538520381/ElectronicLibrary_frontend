@@ -25,7 +25,7 @@ export function userGetUserByToken() {
 export function userAdd(addForm) {
     return request({
         url: '/user/add', method: 'POST', data: {
-            phone: addForm.phone, company: addForm.company,
+            name: addForm.name, phone: addForm.phone, company: addForm.company,
         }
     })
 }
@@ -35,6 +35,7 @@ export function userQueryPage(queryPageForm) {
         url: '/user/queryPage', method: 'GET', params: {
             page: queryPageForm.page,
             pageSize: queryPageForm.pageSize,
+            name: queryPageForm.name,
             phone: queryPageForm.phone,
             company: queryPageForm.company,
             status: queryPageForm.status,
