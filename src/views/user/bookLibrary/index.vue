@@ -41,14 +41,13 @@
 <script>
 import Header from "@/components/header/index.vue";
 import SidebarMenu from "@/components/sidebarMenu/index.vue";
-import BookReader from "@/components/bookReader/index.vue";
 import {categoryGetListSortBySort} from "@/apis/category";
 import {bookQueryList} from "@/apis/book";
 import {isEmpty} from "@/utils/common";
 
 export default {
   name: 'BookLibrary',
-  components: {SidebarMenu, Header, BookReader},
+  components: {SidebarMenu, Header},
   data() {
     return {
       queryPageForm: {

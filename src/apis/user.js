@@ -8,6 +8,14 @@ export function userLogin(loginForm) {
     })
 }
 
+export function userLoginAdmin(loginAdminForm) {
+    return request({
+        url: '/user/loginAdmin', method: 'POST', data: {
+            account: loginAdminForm.account, password: loginAdminForm.password
+        }
+    })
+}
+
 export function userGetUserByToken() {
     return request({
         url: '/user/getUserByToken', method: 'GET'
@@ -43,7 +51,7 @@ export function userDeleteById(deleteByIdForm) {
 export function userUpdateById(updateByIdForm) {
     return request({
         url: '/user/updateById', method: 'PUT', params: {
-            id: updateByIdForm.id, status: updateByIdForm.status
+            id: updateByIdForm.id, status: updateByIdForm.status, password: updateByIdForm.password
         }
     })
 }

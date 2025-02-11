@@ -162,17 +162,17 @@ export default {
       return userGetUserByToken().then((res) => {
         if (res.data.code === 200) {
           if (res.data.user.type !== 0) {
-            this.toAdminLogin()
+            this.toLogin()
             this.$message.error("用户无权限")
           } else {
             this.user = res.data.user
           }
         } else {
-          this.toAdminLogin()
+          this.toLogin()
           this.$message.error("用户未登录")
         }
       }).catch((err) => {
-        this.toAdminLogin()
+        this.toLogin()
         console.log(err)
         this.$message.error("服务器异常，请联系管理员")
       })
@@ -323,8 +323,8 @@ export default {
       this.addUserDialogVis = false
     },
 
-    toAdminLogin() {
-      this.$router.push("/admin/login")
+    toLogin() {
+      this.$router.push("/login")
     },
 
     isEmpty,

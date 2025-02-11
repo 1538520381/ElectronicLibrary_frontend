@@ -3,10 +3,10 @@ import VueRouter from "vue-router";
 
 Vue.use(VueRouter)
 
-export const constantRoutes = [{path: '/', redirect: '/admin/login', hidden: true},
+export const constantRoutes = [{path: '/', redirect: '/login', hidden: true},
 
     {
-        path: '/admin/login', name: 'Login', component: () => import('@/views/admin/login')
+        path: '/login', name: 'Login', component: () => import('@/views/login')
     },
 
     {
