@@ -17,7 +17,14 @@ export const constantRoutes = [{path: '/', redirect: '/login', hidden: true},
 
     {
         path: '/user/bookLibrary', name: 'BookLibrary', component: () => import('@/views/user/bookLibrary')
-    }]
+    },
+    {
+        path: '/user/bookReader/:bookId',
+        component: () => import('@/views/user/bookReader/index.vue'),
+        name: 'BookReader',
+        props: true
+    }
+]
 
 const createRouter = () => new VueRouter({
     routes: constantRoutes, mode: 'history'

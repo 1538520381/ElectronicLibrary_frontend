@@ -127,13 +127,12 @@ export default {
     },
 
     selectBook(book) {
-      let a = document.createElement('a')
-      a.href = '/api/document/previewPdf/' + book.originalDocumentId
-      a.target = '_blank';
-      a.style.display = 'none'
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
+      this.$router.push({
+        path: `/user/bookReader/${book.id}`,
+        query: {
+          totalPages: book.totalPages // 假设book对象中有总页数信息
+        }
+      });
     },
 
     toLogin() {

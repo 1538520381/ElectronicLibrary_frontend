@@ -38,3 +38,9 @@ export function bookQueryList(queryListForm) {
         }
     })
 }
+
+export function bookGetById(bookForm) {
+    return request({
+        url: '/book/getById/' + bookForm.id, method: 'GET'
+    })
+}
