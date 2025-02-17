@@ -334,6 +334,18 @@ export default {
       })
     },
 
+    selectPage(page) {
+      this.page = page
+      this.queryUserPage({
+        page: this.page,
+        pageSize: this.pageSize,
+        name: this.queryPageForm.name,
+        phone: this.queryPageForm.phone,
+        company: this.queryPageForm.company,
+        status: this.queryPageForm.status
+      })
+    },
+
     openAddUserDialog() {
       this.initAddUserForm()
       this.addUserDialogVis = true
