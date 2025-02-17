@@ -53,15 +53,6 @@
                 </div>
               </template>
             </el-table-column>
-            <!--            <el-table-column class="tableColumn" label="处理状态">-->
-            <!--              <template slot-scope="scope">-->
-            <!--                <div>-->
-            <!--                  {{-->
-            <!--                    scope.row.handlingFlag === 0 ? '处理完成' : (scope.row.handlingFlag === 1 ? '处理中' : '处理失败')-->
-            <!--                  }}-->
-            <!--                </div>-->
-            <!--              </template>-->
-            <!--            </el-table-column>-->
             <el-table-column class="tableColumn" prop="createTime" label="上传时间"></el-table-column>
             <el-table-column class="tableColumn" fixed="right" label="操作">
               <template slot-scope="scope">
@@ -70,6 +61,9 @@
                 })">
                   <el-button style="color: #ff0000" type="text" size="small" slot="reference">删除</el-button>
                 </el-popconfirm>
+                <el-divider direction="vertical"></el-divider>
+                <el-button type="text" size="small" slot="reference" @click="openUpdateBookDialog(scope.row)">更新
+                </el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -100,7 +94,7 @@
           <el-button class="addBookFormButton" type="primary" v-loading="uploadBookDocumentLoading"><label
               for="uploadBookDocument">导入</label></el-button>
           <input type="file" id="uploadBookDocument" ref="upload" style="display: none"
-                 @change="uploadBookDocument($event)"/>
+                 @change="uploadBookDocument($event,'add')"/>
           <div class="originalDocumentName" v-if="!isEmpty(addBookForm.document)" @click="downloadDocument({
             id: addBookForm.document.id
           })">
@@ -112,7 +106,7 @@
               for="uploadBookCoverDocument">导入</label>
           </el-button>
           <input type="file" id="uploadBookCoverDocument" ref="upload" style="display: none"
-                 @change="uploadBookCoverDocument($event)"/>
+                 @change="uploadBookCoverDocument($event,'add')"/>
           <el-image class="coverImage" v-if="!isEmpty(addBookForm.coverDocument)"
                     :src="'/api/document/download/' + addBookForm.coverDocument.id" fit="contain" @click="downloadDocument({
                               id: addBookForm.coverDocument.id
@@ -157,6 +151,52 @@
         </draggable>
       </div>
     </el-dialog>
+
+    <el-dialog class="updateBookDialog" title="更新书本" :visible.sync="updateBookDialogVis"
+               :close-on-click-modal="false" width="500px">
+      <el-form class="updateBookForm">
+        <el-form-item class="updateBookFormItem" label="书本类别" :label-width="updateBookDialogFormItemLabelWidth">
+          <el-select class="updateBookFormInput" v-model="updateBookForm.bookCategoryId" placeholder="请选择类别">
+            <el-option v-for="(item, index) in categoryList" :label="item.name" :value="item.id"/>
+          </el-select>
+          <el-button class="updateBookFormButton" @click="openCategoryManagementDialog">类别管理</el-button>
+        </el-form-item>
+        <el-form-item class="updateBookFormItem" label="书本名称" :label-width="updateBookDialogFormItemLabelWidth">
+          <el-input class="updateBookFormInput" v-model="updateBookForm.bookName" maxlength="150"
+                    placeholder="请输入书本名称"></el-input>
+        </el-form-item>
+        <el-form-item class="updateBookFormItem" label="书本文件" :label-width="updateBookDialogFormItemLabelWidth">
+          <el-button class="updateBookFormButton" type="primary" v-loading="uploadBookDocumentLoading"><label
+              for="uploadBookDocument">导入</label></el-button>
+          <input type="file" id="uploadBookDocument" ref="upload" style="display: none"
+                 @change="uploadBookDocument($event,'update')"/>
+          <div class="originalDocumentName" v-if="!isEmpty(updateBookForm.document)" @click="downloadDocument({
+            id: updateBookForm.document.id
+          })">
+            {{ updateBookForm.document.originalDocumentName }}
+          </div>
+        </el-form-item>
+        <el-form-item class="updateBookFormItem" label="封面文件" :label-width="updateBookDialogFormItemLabelWidth">
+          <el-button class="updateBookFormButton" type="primary" v-loading="uploadBookCoverDocumentLoading"><label
+              for="uploadBookCoverDocument">导入</label>
+          </el-button>
+          <input type="file" id="uploadBookCoverDocument" ref="upload" style="display: none"
+                 @change="uploadBookCoverDocument($event,'update')"/>
+          <el-image class="coverImage" v-if="!isEmpty(updateBookForm.coverDocument)"
+                    :src="'/api/document/download/' + updateBookForm.coverDocument.id" fit="contain" @click="downloadDocument({
+                              id: updateBookForm.coverDocument.id
+                            })"></el-image>
+        </el-form-item>
+      </el-form>
+
+      <div class="updateBookDialogFooter">
+        <el-button @click="closeAddBookDialog">取消</el-button>
+        <el-button type="primary"
+                   @click="updateBook({id: updateBookForm.id,categoryId: updateBookForm.bookCategoryId,name: updateBookForm.bookName,coverDocumentId: updateBookForm.coverDocument.id,originalDocumentId: updateBookForm.document.id})">
+          确定
+        </el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -170,7 +210,7 @@ import {documentUpload, documentUploadBook} from "@/apis/document";
 
 import {isEmpty} from "@/utils/common";
 import {categoryAdd, categoryDeleteById, categoryGetListSortBySort, categoryUpdateList} from "@/apis/category";
-import {bookAdd, bookDeleteById, bookQueryPage} from "@/apis/book";
+import {bookAdd, bookDeleteById, bookQueryPage, bookUpdate} from "@/apis/book";
 import {userGetUserByToken} from "@/apis/user";
 
 export default {
@@ -207,6 +247,16 @@ export default {
         categoryName: null,
       },
 
+      updateBookDialogVis: false,
+      updateBookDialogFormItemLabelWidth: '80px',
+      updateBookForm: {
+        id: null,
+        bookCategoryId: null,
+        bookName: null,
+        document: {},
+        coverDocument: {},
+      },
+
       uploadBookDocumentLoading: false,
       uploadBookCoverDocumentLoading: false,
     }
@@ -217,6 +267,7 @@ export default {
     this.initQueryPageForm()
     this.initAddBookForm()
     this.initCategoryManagementForm()
+    this.initUpdateBookForm()
 
     this.queryPageBook({
       page: this.page,
@@ -264,6 +315,17 @@ export default {
     initCategoryManagementForm() {
       this.categoryManagementForm = {
         categoryName: null,
+      }
+    },
+    initUpdateBookForm(book) {
+      if (!isEmpty(book)) {
+        this.updateBookForm = {
+          id: book.id,
+          bookCategoryId: book.categoryId,
+          bookName: book.name,
+          document: book.document,
+          coverDocument: book.coverDocument,
+        }
       }
     },
 
@@ -356,7 +418,7 @@ export default {
         this.$message.error("服务器异常，请联系管理员")
       })
     },
-    uploadBookDocument(event) {
+    uploadBookDocument(event, type) {
       if (event.target.files[0] === undefined) {
         return
       } else if (event.target.files[0].name.substring(event.target.files[0].name.lastIndexOf('.') + 1) !== 'pdf') {
@@ -369,8 +431,13 @@ export default {
         document: event.target.files[0],
       }).then((res) => {
         if (res.data.code === 200) {
-          this.addBookForm.document = res.data.addDocumentVO
-          this.addBookForm.coverDocument = isEmpty(this.addBookForm.coverDocument) ? res.data.coverDocument : this.addBookForm.coverDocument
+          if (type === 'add') {
+            this.addBookForm.document = res.data.addDocumentVO
+            this.addBookForm.coverDocument = isEmpty(this.addBookForm.coverDocument) ? res.data.coverDocument : this.addBookForm.coverDocument
+          } else if (type === 'update') {
+            this.updateBookForm.document = res.data.addDocumentVO
+            this.updateBookForm.coverDocument = isEmpty(this.updateBookForm.coverDocument) ? res.data.coverDocument : this.updateBookForm.coverDocument
+          }
           this.$message.success("上传成功")
         } else {
           console.log(res)
@@ -384,7 +451,7 @@ export default {
         this.uploadBookDocumentLoading = false
       })
     },
-    uploadBookCoverDocument(event) {
+    uploadBookCoverDocument(event, type) {
       if (event.target.files[0] === undefined) {
         return
       } else if (['png', 'jpg'].indexOf(event.target.files[0].name.substring(event.target.files[0].name.lastIndexOf('.') + 1)) === -1) {
@@ -397,7 +464,11 @@ export default {
         document: event.target.files[0],
       }).then((res) => {
         if (res.data.code === 200) {
-          this.addBookForm.coverDocument = res.data.addDocumentVO
+          if (type === 'add') {
+            this.addBookForm.coverDocument = res.data.addDocumentVO
+          } else if (type === 'update') {
+            this.updateBookForm.coverDocument = res.data.addDocumentVO
+          }
           this.$message.success("上传成功")
         } else {
           console.log(res)
@@ -495,6 +566,50 @@ export default {
       a.click()
       document.body.removeChild(a)
     },
+    updateBook(updateBookForm) {
+      console.log(this.updateBookForm)
+      if (isEmpty(updateBookForm.id)) {
+        this.$message.error("服务器异常，请联系管理员")
+        return;
+      } else if (isEmpty(updateBookForm.categoryId)) {
+        this.$message.error("请选择书本类别")
+        return
+      } else if (isEmpty(updateBookForm.name)) {
+        this.$message.error("请输入书本名称")
+        return
+      } else if (isEmpty(updateBookForm.originalDocumentId)) {
+        this.$message.error("请上传书本文件")
+        return
+      } else if (isEmpty(updateBookForm.coverDocumentId)) {
+        this.$message.error("请上传封面文件")
+        return
+      }
+
+      bookUpdate({
+        id: updateBookForm.id,
+        categoryId: updateBookForm.categoryId,
+        name: updateBookForm.name,
+        coverDocumentId: updateBookForm.coverDocumentId,
+        originalDocumentId: updateBookForm.originalDocumentId,
+      }).then((res) => {
+        if (res.data.code === 200) {
+          this.closeUpdateBookDialog()
+          this.queryPageBook({
+            page: this.page,
+            pageSize: this.pageSize,
+            categoryId: this.queryPageForm.categoryId,
+            name: this.queryPageForm.name
+          })
+          this.$message.success("新增成功")
+        } else {
+          console.log(res)
+          this.$message.error(res.data.msg)
+        }
+      }).catch((err) => {
+        console.log(err)
+        this.$message.error("服务器异常，请联系管理员")
+      })
+    },
 
     openAddBookDialog() {
       this.initAddBookForm();
@@ -506,6 +621,19 @@ export default {
     openCategoryManagementDialog() {
       this.initCategoryManagementForm()
       this.categoryManagementDialogVis = true
+    },
+    openUpdateBookDialog(book) {
+      this.initUpdateBookForm({
+        id: book.id,
+        categoryId: book.categoryId,
+        name: book.name,
+        document: book.document,
+        coverDocument: book.coverDocument
+      })
+      this.updateBookDialogVis = true
+    },
+    closeUpdateBookDialog() {
+      this.updateBookDialogVis = false;
     },
 
     selectPage(page) {
@@ -677,5 +805,43 @@ export default {
   border: 1px solid #aaaaaa;
 
   cursor: pointer;
+}
+
+#bookManagement .updateBookDialog .updateBookForm .updateBookFormItem {
+  margin: 0 0 10px 0;
+}
+
+#bookManagement .updateBookDialog .updateBookForm .updateBookFormItem .updateBookFormInput {
+  width: 240px;
+}
+
+#bookManagement .updateBookDialog .updateBookForm .updateBookFormItem .updateBookFormButton {
+  padding-right: 0;
+  padding-left: 0;
+
+  width: 80px;
+
+  text-align: center;
+}
+
+#bookManagement .updateBookDialog .updateBookForm .updateBookFormItem .originalDocumentName {
+  cursor: pointer;
+}
+
+#bookManagement .updateBookDialog .updateBookForm .updateBookFormItem .coverImage {
+  display: block;
+
+  margin: 3px 0 0 0;
+
+  width: 100px;
+  height: 150px;
+
+  border: 1px solid #aaaaaa;
+
+  cursor: pointer;
+}
+
+#bookManagement .updateBookDialog .updateBookDialogFooter {
+  text-align: right;
 }
 </style>

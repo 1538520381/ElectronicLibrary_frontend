@@ -44,3 +44,15 @@ export function bookGetById(bookForm) {
         url: '/book/getById/' + bookForm.id, method: 'GET'
     })
 }
+
+export function bookUpdate(updateForm) {
+    return request({
+        url: '/book/update', method: 'POST', data: {
+            id: updateForm.id,
+            categoryId: updateForm.categoryId,
+            name: updateForm.name,
+            coverDocumentId: updateForm.coverDocumentId,
+            originalDocumentId: updateForm.originalDocumentId,
+        }
+    })
+}
