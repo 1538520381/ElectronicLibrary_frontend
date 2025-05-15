@@ -54,6 +54,15 @@
               </template>
             </el-table-column>
             <el-table-column class="tableColumn" prop="createTime" label="上传时间"></el-table-column>
+            <el-table-column class="tableColumn" label="处理状态">
+              <template slot-scope="scope">
+                <div>
+                  {{
+                    scope.row.handlingFlag === 0 ? '处理完成' : (scope.row.handlingFlag === 1 ? '处理中' : '处理失败')
+                  }}
+                </div>
+              </template>
+            </el-table-column>
             <el-table-column class="tableColumn" fixed="right" label="操作">
               <template slot-scope="scope">
                 <el-popconfirm title="确定删除吗?" @confirm="deleteBookById({

@@ -202,7 +202,7 @@ export default {
 
 #bookLibrary .middle .main .bookListMain .bookListContainer /deep/ .el-scrollbar__wrap {
   overflow-x: hidden;
-  overflow-y: hidden;
+  overflow-y: auto;
 }
 
 #bookLibrary .middle .main .bookListMain .bookListContainer .bookContainer {

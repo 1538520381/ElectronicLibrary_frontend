@@ -1,30 +1,31 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 
+import Login from '@/views/login/index.vue'
+import BookManagement from "@/views/admin/bookManagement/index.vue";
+import UserManagement from "@/views/admin/userManagement/index.vue";
+import BookLibrary from "@/views/user/bookLibrary/index.vue";
+import BookReader from "@/views/user/bookReader/index.vue"
+
 Vue.use(VueRouter)
 
 export const constantRoutes = [{path: '/', redirect: '/login', hidden: true},
 
     {
-        path: '/login', name: 'Login', component: () => import('@/views/login')
+        path: '/login', name: 'Login', component: Login,
     },
 
     {
-        path: '/admin/bookManagement', name: 'BookManagement', component: () => import('@/views/admin/bookManagement')
+        path: '/admin/bookManagement', name: 'BookManagement', component: BookManagement
     }, {
-        path: '/admin/userManagement', name: 'UserManagement', component: () => import('@/views/admin/userManagement')
+        path: '/admin/userManagement', name: 'UserManagement', component: UserManagement
     },
 
     {
-        path: '/user/bookLibrary', name: 'BookLibrary', component: () => import('@/views/user/bookLibrary')
-    },
-    {
-        path: '/user/bookReader/:bookId',
-        component: () => import('@/views/user/bookReader/index.vue'),
-        name: 'BookReader',
-        props: true
-    }
-]
+        path: '/user/bookLibrary', name: 'BookLibrary', component: BookLibrary
+    }, {
+        path: '/user/bookReader/:bookId', component: BookReader, name: 'BookReader', props: true
+    }]
 
 const createRouter = () => new VueRouter({
     routes: constantRoutes, mode: 'history'
