@@ -6,11 +6,11 @@ import BookManagement from "@/views/admin/bookManagement/index.vue";
 import UserManagement from "@/views/admin/userManagement/index.vue";
 import BookLibrary from "@/views/user/bookLibrary/index.vue";
 import BookReader from "@/views/user/bookReader/index.vue"
+import Search from "@/views/search/search/index.vue";
 
 Vue.use(VueRouter)
 
 export const constantRoutes = [{path: '/', redirect: '/login', hidden: true},
-
     {
         path: '/login', name: 'Login', component: Login,
     },
@@ -25,6 +25,10 @@ export const constantRoutes = [{path: '/', redirect: '/login', hidden: true},
         path: '/user/bookLibrary', name: 'BookLibrary', component: BookLibrary
     }, {
         path: '/user/bookReader/:bookId', component: BookReader, name: 'BookReader', props: true
+    },
+
+    {
+        path: '/search/search', component: Search, name: 'Search'
     }]
 
 const createRouter = () => new VueRouter({
