@@ -87,8 +87,8 @@ export default {
   },
   methods: {
     search() {
-      if (isEmpty(this.searchText) || this.searchText.length <= 3) {
-        this.$message.error("关键词长度需要大于3")
+      if (isEmpty(this.searchText) || this.searchText.length <= 1) {
+        this.$message.error("关键词长度需要大于1")
         return
       }
       this.searchTextBackup = this.searchText
@@ -127,18 +127,15 @@ export default {
         node.child.forEach(child => {
           this.extractParagraphs(child, fileName + '  >  ' + child.name, path + "/" + child.name);
         });
-      } else if (!isEmpty(node.content)) {
-        let paragraphs = node.content.split(/\r\n/);
-        paragraphs.forEach(paragraph => {
-          if (paragraph.includes(this.searchTextBackup)) {
-            this.visibleIds.push(node.id)
-            this.paragraphs.push({
-              id: node.id,
-              fileName: fileName,
-              paragraph: paragraph,
-              path: path
-            });
-          }
+      } else if (!isEmpty(node.contents)) {
+        this.visibleIds.push(node.id)
+        node.contents.forEach(paragraph => {
+          this.paragraphs.push({
+            id: node.id,
+            fileName: fileName,
+            paragraph: paragraph,
+            path: path
+          });
         });
       }
       this.handleFlag--;
